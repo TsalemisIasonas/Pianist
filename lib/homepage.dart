@@ -14,6 +14,7 @@ class _HomePageState extends State<HomePage> {
     final Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text("P I A N I S T"),
         elevation: 1,
@@ -21,20 +22,17 @@ class _HomePageState extends State<HomePage> {
         foregroundColor: Colors.white,
         shadowColor: Colors.white,
       ),
-      body: Stack(
-        children: [
-          Image.asset('assets/images/piano.jfif', fit: BoxFit.cover),
-          Center(
-            child: Container(
+      body: Center(
+        child: Stack(
+          children: [
+            Image.asset('assets/images/piano.jfif', fit: BoxFit.cover),
+            Container(
               width: 3 * screenSize.width / 4,
               height: 3 * screenSize.height / 4,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: Colors.transparent,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 3.0,
-                ),
+                border: Border.all(color: Colors.white, width: 3.0),
               ),
               child: IconButton(
                 onPressed: () {
@@ -42,26 +40,26 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push(
                       context,
                       PageRouteBuilder(
-                        pageBuilder:
-                            (context, animation, secondaryAnimation) =>
-                                const PractisePage(),
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                            const PractisePage(),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
-                          const begin = Offset(1.0, 0.0);
-                          const end = Offset.zero;
-                          const curve = Curves.easeInOut;
-          
-                          var tween = Tween(begin: begin, end: end).chain(
-                            CurveTween(curve: curve),
-                          );
-          
-                          var offsetAnimation = animation.drive(tween);
-          
-                          return SlideTransition(
-                            position: offsetAnimation,
-                            child: child,
-                          );
-                        },
+                              const begin = Offset(1.0, 0.0);
+                              const end = Offset.zero;
+                              const curve = Curves.easeInOut;
+
+                              var tween = Tween(
+                                begin: begin,
+                                end: end,
+                              ).chain(CurveTween(curve: curve));
+
+                              var offsetAnimation = animation.drive(tween);
+
+                              return SlideTransition(
+                                position: offsetAnimation,
+                                child: child,
+                              );
+                            },
                       ),
                     );
                   });
@@ -73,8 +71,8 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
