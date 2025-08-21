@@ -98,57 +98,48 @@ class _ChordsPageState extends State<ChordsPage> {
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
+      backgroundColor: Colors.black,
       appBar: AppBar(
         title: const Text("C H O R D S"),
         elevation: 1,
         backgroundColor: Colors.black,
-        foregroundColor: Colors.orange,
+        foregroundColor: Colors.white,
         shadowColor: Colors.white,
         actions: [IconButton(onPressed: startProcess, icon: const Icon(Icons.timer))],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.black, Color.fromARGB(255, 235, 181, 100)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: [0.4, 0.9],
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            selectedKey,
+            style: const TextStyle(color: Colors.white, fontSize: 60,),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              selectedKey,
-              style: const TextStyle(color: Colors.white, fontSize: 60,),
-            ),
-            const SizedBox(height: 30,),
-            Text(
-              selectedValue,
-              style: const TextStyle(color: Colors.white, fontSize: 30, fontStyle: FontStyle.italic),
-            ),
-            SizedBox(height: 2*screenSize.height/6), // Adjust the spacing as needed
-            Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 40),
-                    child: TextButton(
-                      onPressed: newChord,
-                      child: const Text("Next"),
-                      style: TextButton.styleFrom(
-                        backgroundColor: const  Color.fromARGB(255, 55, 52, 52),
-                        //primary: Colors.orange,
-                        minimumSize: Size(screenSize.width, screenSize.height/6),
-                      ),
+          const SizedBox(height: 30,),
+          Text(
+            selectedValue,
+            style: const TextStyle(color: Colors.white, fontSize: 30, fontStyle: FontStyle.italic),
+          ),
+          SizedBox(height: 2*screenSize.height/6), // Adjust the spacing as needed
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 40, right: 40),
+                  child: TextButton(
+                    onPressed: newChord,
+                    child: const Text("Next"),
+                    style: TextButton.styleFrom(
+                      backgroundColor: const  Color.fromARGB(255, 55, 52, 52),
+                      //primary: Colors.orange,
+                      minimumSize: Size(screenSize.width *0.2, screenSize.height/6),
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

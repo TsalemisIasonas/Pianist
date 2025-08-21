@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pianist/homepage.dart';
+import 'package:pianist/pages/homepage.dart';
 
 void main() {
   runApp(const MyApp());
