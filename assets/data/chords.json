@@ -1,13 +1,11 @@
 {
-    "C" : ["Root Position", "1st Inversion", "2nd Inversion"],
-   
-    "D" : ["Root Position", "1st Inversion", "2nd Inversion"],
-    
-    "Em" : ["Root Position", "1st Inversion", "2nd Inversion"],
-    
-    "G" : ["Root Position", "1st Inversion", "2nd Inversion"],
-    
-    "Am" : ["Root Position", "1st Inversion", "2nd Inversion"],
-    
-    "Bm" : ["Root Position", "1st Inversion", "2nd Inversion"]
+    "Positions" : ["Root Position", "1st Inversion", "2nd Inversion"],
+
+    "Chords" : ["C", "Cm", "Cmaj7", "C7", "Cm7", "Cm7b5", "C6", "Cm6", "C9", "C11", "C13",
+                "D", "Dm", "Dmaj7", "D7", "Dm7", "Dm7b5", "D6", "Dm6", "D9", "D11", "D13",
+                "E", "Em", "Emaj7", "E7", "Em7", "Em7b5", "E6", "Em6", "E9", "E11", "E13",
+                "F", "Fm", "Fmaj7", "F7", "Fm7", "Fm7b5", "F6", "Fm6", "F9", "F11", "F13",
+                "G", "Gm", "Gmaj7", "G7", "Gm7", "Gm7b5", "G6", "Gm6", "G9", "G11", "G13",
+                "A", "Am", "Amaj7", "A7", "Am7", "Am7b5", "A6", "Am6","A9","A11","A13",
+                "B","Bm","Bmaj7","B7","Bm7","Bm7b5","B6","Bm6","B9","B11","B13"]
 }

@@ -16,23 +16,23 @@ class HexGlassButton extends StatelessWidget {
         onTap: onTap,
         child: SizedBox(
           width: btnSize,
-          height: btnSize * 0.85,
+          height: btnSize, //* 0.85,
           child: ClipPath(
             clipper: HexagonClipper(),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 19.0, sigmaY: 19.0),
+              filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                   colors: [
-                    Colors.white.withOpacity(0.2),
-                    Colors.white.withOpacity(0.05),
+                    Colors.black.withOpacity(0.94),
+                    Colors.black.withOpacity(0.04),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 
-                  border: Border.all(color: Colors.white.withOpacity(0.2), width: 1.2),
+                  //border: Border.all(color: Colors.white.withOpacity(0.9), width: 2.2),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.25),
