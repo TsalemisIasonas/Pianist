@@ -2,7 +2,10 @@ import 'dart:math';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pianist/components/dialog_box.dart';
 
 class PractisePage extends StatefulWidget {
   final String practiseVal;
@@ -20,7 +23,7 @@ class _PractisePageState extends State<PractisePage> {
   List<String> chordList = [];
   List<String> positionList = [];
   String userInput = '';
-  final List<String> _selectedChords = [];
+  final List<String> _SelectedChords = [];
   final List<String> _selectedPositions = [];
   bool _chordsSelected = false;
 
@@ -34,20 +37,70 @@ class _PractisePageState extends State<PractisePage> {
 
   Future<void> loadJsonData() async {
     try {
-      String jsonString =
-          await rootBundle.loadString('assets/data/${widget.practiseVal}.json');
+      final dir = await getApplicationDocumentsDirectory();
+      final localFile = File('${dir.path}/${widget.practiseVal}.json');
+      String jsonString;
+      if (await localFile.exists()) {
+        jsonString = await localFile.readAsString();
+        print('Loading local file: ${localFile.path}');
+      } else {
+        jsonString = await rootBundle.loadString('assets/data/${widget.practiseVal}.json');
+        print('Loading asset: assets/data/${widget.practiseVal}.json');
+      }
       final decoded = json.decode(jsonString) as Map<String, dynamic>;
+
+      final String prettyKey = widget.practiseVal.isNotEmpty
+          ? widget.practiseVal[0].toUpperCase() + widget.practiseVal.substring(1).toLowerCase()
+          : widget.practiseVal;
+
+      List<String> chords = [];
+      List<String> positions = [];
+
+      if (decoded.containsKey(prettyKey) && decoded[prettyKey] is List) {
+        chords = List<String>.from(decoded[prettyKey] as List);
+      } else if (decoded.containsKey('Chords') && decoded['Chords'] is List) {
+        chords = List<String>.from(decoded['Chords'] as List);
+      } else {
+        final possibleChordKeys = decoded.keys.where((k) => decoded[k] is List).toList();
+        if (possibleChordKeys.isNotEmpty) {
+          chords = List<String>.from(possibleChordKeys.map((e) => e.toString()));
+        }
+      }
+
+      if (decoded.containsKey('Positions') && decoded['Positions'] is List) {
+        positions = List<String>.from(decoded['Positions'] as List);
+      }
+
       setState(() {
         jsonData = decoded;
-        chordList = List<String>.from(decoded['${widget.practiseVal[0].toUpperCase()} + ${widget.practiseVal.substring(1).toLowerCase()}']);
-        positionList = List<String>.from(decoded['Positions'] as List);
+        chordList = chords;
+        positionList = positions;
       });
-    } catch (e) {
+    } catch (e, st) {
+      print('Error loading/parsing ${widget.practiseVal}.json: $e');
+      print(st);
       setState(() {
         jsonData = null;
         chordList = [];
         positionList = [];
       });
+    }
+  }
+
+  Future<File> _localFile() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return File('${dir.path}/${widget.practiseVal}.json');
+  }
+
+  Future<void> _saveJsonToLocal() async {
+    try {
+      final file = await _localFile();
+      if (jsonData != null) {
+        await file.writeAsString(json.encode(jsonData));
+        print('Saved json to ${file.path}');
+      }
+    } catch (e) {
+      print('Error saving local json: $e');
     }
   }
 
@@ -89,8 +142,8 @@ class _PractisePageState extends State<PractisePage> {
 
   void newChord() {
     setState(() {
-      if (_selectedChords.isNotEmpty && _selectedPositions.isNotEmpty) {
-        selectedKey = _selectedChords[_random.nextInt(_selectedChords.length)];
+      if (_SelectedChords.isNotEmpty && _selectedPositions.isNotEmpty) {
+        selectedKey = _SelectedChords[_random.nextInt(_SelectedChords.length)];
         selectedValue = _selectedPositions[_random.nextInt(_selectedPositions.length)];
       } else {
         selectedKey = 'No ${widget.practiseVal} selected';
@@ -99,15 +152,55 @@ class _PractisePageState extends State<PractisePage> {
     });
   }
 
+  void addElements() async {
+    // Open dialog which returns the list of added entries (or null if cancelled)
+    final added = await showDialog<List<String>?>(
+      context: context,
+      builder: (context) => DialogBox(practiseVal: widget.practiseVal),
+    );
+
+    if (added != null && added.isNotEmpty) {
+      // apply changes in parent state and persist
+      setState(() {
+        // append to UI list
+        chordList.addAll(added);
+
+        // update jsonData according to detected shape
+        if (jsonData != null) {
+          final String prettyKey = widget.practiseVal.isNotEmpty
+              ? widget.practiseVal[0].toUpperCase() + widget.practiseVal.substring(1).toLowerCase()
+              : widget.practiseVal;
+
+          if (jsonData!.containsKey(prettyKey) && jsonData![prettyKey] is List) {
+            (jsonData![prettyKey] as List).addAll(added);
+          } else if (jsonData!.containsKey('Chords') && jsonData!['Chords'] is List) {
+            (jsonData!['Chords'] as List).addAll(added);
+          } else {
+            for (var e in added) {
+              if (!jsonData!.containsKey(e)) jsonData![e] = <dynamic>[];
+            }
+          }
+        } else {
+          final String prettyKey = widget.practiseVal.isNotEmpty
+              ? widget.practiseVal[0].toUpperCase() + widget.practiseVal.substring(1).toLowerCase()
+              : widget.practiseVal;
+          jsonData = {prettyKey: List.from(added)};
+        }
+      });
+
+      await _saveJsonToLocal();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    bool canStart = _selectedChords.isNotEmpty && _selectedPositions.isNotEmpty;
+    bool canStart = _SelectedChords.isNotEmpty && _selectedPositions.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: Text(widget.practiseVal, style: const TextStyle(letterSpacing: 8)),
+        title: Text(widget.practiseVal.toUpperCase(), style: const TextStyle(letterSpacing: 8)),
         elevation: 1,
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
@@ -118,7 +211,10 @@ class _PractisePageState extends State<PractisePage> {
                   onPressed: startProcess,
                   icon: const Icon(Icons.timer),
                 )
-              : const SizedBox.shrink(),
+              : IconButton(
+                  onPressed: addElements,
+                  icon: const Icon(Icons.add, size: 30),
+                )
         ],
       ),
       body: _chordsSelected
@@ -127,9 +223,10 @@ class _PractisePageState extends State<PractisePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 30),
                   Text(
                     selectedKey,
-                    style: const TextStyle(color: Colors.white, fontSize: 60),
+                    style: const TextStyle(color: Colors.white, fontSize: 65),
                   ),
                   const SizedBox(height: 30),
                   Text(
@@ -146,17 +243,29 @@ class _PractisePageState extends State<PractisePage> {
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.only(left: 40, right: 40),
-                          child: TextButton(
-                            onPressed: newChord,
-                            style: TextButton.styleFrom(
-                              backgroundColor:
-                                  const Color.fromARGB(255, 55, 52, 52),
-                              minimumSize: Size(
-                                screenSize.width * 0.2,
-                                screenSize.height / 6,
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 80, // Make it square (height = width)
+                            child: AspectRatio(
+                              aspectRatio: 1,
+                              child: TextButton(
+                                onPressed: newChord,
+                                style: TextButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 55, 52, 52),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0), // Square
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Next",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
-                            child: const Text("Next"),
                           ),
                         ),
                       ),
@@ -185,6 +294,7 @@ class _PractisePageState extends State<PractisePage> {
                             textAlign: TextAlign.center,
                           ),
                         ),
+                        const SizedBox(height: 30),
                         SizedBox(
                           height: 100,
                           child: ListView.builder(
@@ -211,6 +321,10 @@ class _PractisePageState extends State<PractisePage> {
                                       color: isSelected ? Colors.red : Colors.white,
                                       width: 2,
                                     ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    minimumSize: const Size(80, 80), // Make square
                                   ),
                                   child: Text(
                                     positionItem,
@@ -228,7 +342,7 @@ class _PractisePageState extends State<PractisePage> {
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 8.0),
                           child: Text(
-                            '${widget.practiseVal[0].toUpperCase()} + ${widget.practiseVal.substring(1).toLowerCase()}',
+                            '${widget.practiseVal[0].toUpperCase()}' '${widget.practiseVal.substring(1).toLowerCase()}',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
@@ -236,6 +350,7 @@ class _PractisePageState extends State<PractisePage> {
                             textAlign: TextAlign.center,
                           ),
                         ),
+                        const SizedBox(height: 30),
                         GridView.builder(
                           physics: const NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
@@ -249,16 +364,93 @@ class _PractisePageState extends State<PractisePage> {
                           itemCount: chordList.length,
                           itemBuilder: (context, index) {
                             final chordItem = chordList[index];
-                            bool isSelected = _selectedChords.contains(chordItem);
+                            bool isSelected = _SelectedChords.contains(chordItem);
                             return GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  if (_selectedChords.contains(chordItem)) {
-                                    _selectedChords.remove(chordItem);
+                                  if (_SelectedChords.contains(chordItem)) {
+                                    _SelectedChords.remove(chordItem);
                                   } else {
-                                    _selectedChords.add(chordItem);
+                                    _SelectedChords.add(chordItem);
                                   }
                                 });
+                              },
+                              onLongPress: () async {
+                                final TextEditingController editController = TextEditingController(text: chordItem);
+                                final action = await showDialog<String?>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Edit or Delete'),
+                                    content: TextField(
+                                      controller: editController,
+                                      decoration: const InputDecoration(hintText: 'Edit chord name'),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop('delete'),
+                                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(null),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(editController.text.trim()),
+                                        child: const Text('Save'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (action != null) {
+                                  if (action == 'delete') {
+                                    setState(() {
+                                      chordList.removeAt(index);
+                                      _SelectedChords.remove(chordItem);
+                                      if (jsonData != null) {
+                                        final String prettyKey = widget.practiseVal.isNotEmpty
+                                            ? widget.practiseVal[0].toUpperCase() + widget.practiseVal.substring(1).toLowerCase()
+                                            : widget.practiseVal;
+                                        if (jsonData!.containsKey(prettyKey) && jsonData![prettyKey] is List) {
+                                          (jsonData![prettyKey] as List).remove(chordItem);
+                                        } else if (jsonData!.containsKey('Chords') && jsonData!['Chords'] is List) {
+                                          (jsonData!['Chords'] as List).remove(chordItem);
+                                        } else {
+                                          jsonData!.remove(chordItem);
+                                        }
+                                      }
+                                    });
+                                    await _saveJsonToLocal();
+                                  } else {
+                                    final edited = action;
+                                    if (edited != chordItem && edited.isNotEmpty) {
+                                      setState(() {
+                                        chordList[index] = edited;
+                                        if (_SelectedChords.remove(chordItem)) {
+                                          _SelectedChords.add(edited);
+                                        }
+                                        final String prettyKey = widget.practiseVal.isNotEmpty
+                                            ? widget.practiseVal[0].toUpperCase() + widget.practiseVal.substring(1).toLowerCase()
+                                            : widget.practiseVal;
+                                        if (jsonData != null) {
+                                          if (jsonData!.containsKey(prettyKey) && jsonData![prettyKey] is List) {
+                                            final List list = jsonData![prettyKey] as List;
+                                            final idx = list.indexOf(chordItem);
+                                            if (idx != -1) list[idx] = edited;
+                                          } else if (jsonData!.containsKey('Chords') && jsonData!['Chords'] is List) {
+                                            final List list = jsonData!['Chords'] as List;
+                                            final idx = list.indexOf(chordItem);
+                                            if (idx != -1) list[idx] = edited;
+                                          } else if (jsonData!.containsKey(chordItem)) {
+                                            final value = jsonData!.remove(chordItem);
+                                            jsonData![edited] = value;
+                                          }
+                                        }
+                                      });
+                                      await _saveJsonToLocal();
+                                    }
+                                  }
+                                }
                               },
                               child: Container(
                                 decoration: BoxDecoration(

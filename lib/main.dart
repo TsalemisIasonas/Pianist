@@ -6,14 +6,15 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({ Key? key }) : super(key: key);
+  const MyApp({ super.key });
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Pianist",
-      home: HomePage()
+      home: HomePage(),
+      theme: ThemeData.from(colorScheme: ColorScheme.fromSeed(seedColor: Colors.red)),
     );
   }
 }
