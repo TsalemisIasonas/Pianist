@@ -1,13 +1,5 @@
 {
-    "C" : ["Root Position", "1st Inversion", "2nd Inversion"],
-   
-    "D" : ["Root Position", "1st Inversion", "2nd Inversion"],
-    
-    "Em" : ["Root Position", "1st Inversion", "2nd Inversion"],
-    
-    "G" : ["Root Position", "1st Inversion", "2nd Inversion"],
-    
-    "Am" : ["Root Position", "1st Inversion", "2nd Inversion"],
-    
-    "Bm" : ["Root Position", "1st Inversion", "2nd Inversion"]
+    "Positions" : ["Root Position", "1st Inversion", "2nd Inversion"],
+
+    "Chords" : ["C", "Cm", "D", "Dm", "E", "Em", "F","G", "Gm", "A", "Am", "B", "Bm"]
 }
