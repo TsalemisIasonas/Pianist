@@ -40,20 +40,12 @@ class _HomePageState extends State<HomePage> {
                   // Image clipped to circle
                   ClipOval(
                     child: Image.asset(
-                      'assets/images/piano.jfif',
+                      'assets/images/logo.png',
                       fit: BoxFit.cover,
                       width: circleSize,
                       height: circleSize,
                     ),
                   ),
-                  // Backdrop blur (applies to image beneath)
-                  Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                      child: Container(color: Colors.transparent),
-                    ),
-                  ),
-                  // Circular overlay (translucent) on top of blurred image
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -83,42 +75,9 @@ class _HomePageState extends State<HomePage> {
                         ),
                       );
                     },
-                    child: Container(
-                      width: circleSize,
-                      height: circleSize,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.12),
-                          width: 2.0,
-                        ),
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.white.withOpacity(0.06),
-                            Colors.white.withOpacity(0.03),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Begin",
-                          style: TextStyle(color: Colors.black, fontSize: 30),
-                        ),
-                      ),
-                    ),
                   ),
-                  // Icon on top of image
-                  // IconButton(
 
-                  //   icon: const Icon(
-                  //     Icons.music_note,
-                  //     size: 100,
-                  //     color: Colors.white,
-                  //   ),
-                  //   tooltip: 'Start practice',
-                  // ),
+
                 ],
               ),
             ),

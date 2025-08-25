@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Pianist",
       home: HomePage(),
-      theme: ThemeData.from(colorScheme: ColorScheme.fromSeed(seedColor: Colors.red)),
+      theme: ThemeData.from(colorScheme: ColorScheme.fromSeed(seedColor: Colors.white)),
     );
   }
 }
