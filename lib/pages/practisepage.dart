@@ -23,7 +23,7 @@ class _PractisePageState extends State<PractisePage> {
   List<String> chordList = [];
   List<String> positionList = [];
   String userInput = '';
-  final List<String> _SelectedChords = [];
+  final List<String> _selectedChords = [];
   final List<String> _selectedPositions = [];
   bool _chordsSelected = false;
 
@@ -142,8 +142,8 @@ class _PractisePageState extends State<PractisePage> {
 
   void newChord() {
     setState(() {
-      if (_SelectedChords.isNotEmpty && _selectedPositions.isNotEmpty) {
-        selectedKey = _SelectedChords[_random.nextInt(_SelectedChords.length)];
+      if (_selectedChords.isNotEmpty && _selectedPositions.isNotEmpty) {
+        selectedKey = _selectedChords[_random.nextInt(_selectedChords.length)];
         selectedValue = _selectedPositions[_random.nextInt(_selectedPositions.length)];
       } else {
         selectedKey = 'No ${widget.practiseVal} selected';
@@ -195,7 +195,7 @@ class _PractisePageState extends State<PractisePage> {
   @override
   Widget build(BuildContext context) {
     Size screenSize = MediaQuery.of(context).size;
-    bool canStart = _SelectedChords.isNotEmpty && _selectedPositions.isNotEmpty;
+    bool canStart = _selectedChords.isNotEmpty && _selectedPositions.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -364,14 +364,14 @@ class _PractisePageState extends State<PractisePage> {
                           itemCount: chordList.length,
                           itemBuilder: (context, index) {
                             final chordItem = chordList[index];
-                            bool isSelected = _SelectedChords.contains(chordItem);
+                            bool isSelected = _selectedChords.contains(chordItem);
                             return GestureDetector(
                               onTap: () {
                                 setState(() {
-                                  if (_SelectedChords.contains(chordItem)) {
-                                    _SelectedChords.remove(chordItem);
+                                  if (_selectedChords.contains(chordItem)) {
+                                    _selectedChords.remove(chordItem);
                                   } else {
-                                    _SelectedChords.add(chordItem);
+                                    _selectedChords.add(chordItem);
                                   }
                                 });
                               },
@@ -406,7 +406,7 @@ class _PractisePageState extends State<PractisePage> {
                                   if (action == 'delete') {
                                     setState(() {
                                       chordList.removeAt(index);
-                                      _SelectedChords.remove(chordItem);
+                                      _selectedChords.remove(chordItem);
                                       if (jsonData != null) {
                                         final String prettyKey = widget.practiseVal.isNotEmpty
                                             ? widget.practiseVal[0].toUpperCase() + widget.practiseVal.substring(1).toLowerCase()
@@ -426,8 +426,8 @@ class _PractisePageState extends State<PractisePage> {
                                     if (edited != chordItem && edited.isNotEmpty) {
                                       setState(() {
                                         chordList[index] = edited;
-                                        if (_SelectedChords.remove(chordItem)) {
-                                          _SelectedChords.add(edited);
+                                        if (_selectedChords.remove(chordItem)) {
+                                          _selectedChords.add(edited);
                                         }
                                         final String prettyKey = widget.practiseVal.isNotEmpty
                                             ? widget.practiseVal[0].toUpperCase() + widget.practiseVal.substring(1).toLowerCase()
