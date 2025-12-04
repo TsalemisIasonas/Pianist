@@ -42,10 +42,8 @@ class _PractisePageState extends State<PractisePage> {
       String jsonString;
       if (await localFile.exists()) {
         jsonString = await localFile.readAsString();
-        print('Loading local file: ${localFile.path}');
       } else {
         jsonString = await rootBundle.loadString('assets/data/${widget.practiseVal}.json');
-        print('Loading asset: assets/data/${widget.practiseVal}.json');
       }
       final decoded = json.decode(jsonString) as Map<String, dynamic>;
 
@@ -76,9 +74,7 @@ class _PractisePageState extends State<PractisePage> {
         chordList = chords;
         positionList = positions;
       });
-    } catch (e, st) {
-      print('Error loading/parsing ${widget.practiseVal}.json: $e');
-      print(st);
+    } catch (e) {
       setState(() {
         jsonData = null;
         chordList = [];
@@ -97,10 +93,8 @@ class _PractisePageState extends State<PractisePage> {
       final file = await _localFile();
       if (jsonData != null) {
         await file.writeAsString(json.encode(jsonData));
-        print('Saved json to ${file.path}');
       }
     } catch (e) {
-      print('Error saving local json: $e');
     }
   }
 
